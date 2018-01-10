@@ -1,12 +1,17 @@
 <template lang="html">
   <div class="progress-track" ref="track" @click.prevent="dumpTrack" @mousewheel.prevent="wheelTrack">
-    <slot></slot>
-    <div style="width: 0%" class="progress-percent" ref="percent"></div>
-    <div style="left: -5px" class="progress-control" @mousedown.prevent="bindEvents" ref="control"></div>
+    <div :style="{width: volume * 50 + 'px'}" class="progress-percent" ref="percent"></div>
+    <div :style="{left: volume * 50 - 5 + 'px'}" class="progress-control" @mousedown.prevent="bindEvents" ref="control"></div>
   </div>
 </template>
 <script>
   export default {
+    props: {
+      volume: {
+        type: Number,
+        default: 0
+      }
+    },
     data () {
       return {
         isDragging: false
@@ -29,39 +34,21 @@
         window.removeEventListener('mousemove', this.controlsDragging, false)
         window.removeEventListener('mouseup', this.cancelDragging, false)
       },
-      setPercent (width) {
-        this.$refs.percent.style.width = width + 'px'
-      },
-      setControl (left) {
-        this.$refs.control.style.left = left + 'px'
-      },
       dumpTrack (e) {
         let left = e.clientX - this.$refs.track.getBoundingClientRect().left
         let width = this.$refs.track.getBoundingClientRect().width
         if (left <= width && left >= 0) {
-          this.setPercent(left)
-          this.setControl(left - 5)
+          this.$emit('dumpVolumeTrack', left / width)
         }
       },
       wheelTrack () {
         let e = event || window.event
-        let left = Number(this.$refs.control.style.left.replace('px', ''))
-        let width = this.$refs.track.getBoundingClientRect().width
         if (e.wheelDelta === 120) {
-          left += 1
+          this.$emit('wheelVolumeTrack', true)
         }
         if (e.wheelDelta === -120) {
-          left -= 1
+          this.$emit('wheelVolumeTrack', false)
         }
-        if (left <= width - 5 && left >= -5) {
-          this.setPercent(left + 5)
-          this.setControl(left)
-        }
-      },
-      setCurrent (scale) {
-        let width = this.$refs.track.getBoundingClientRect().width
-        this.setPercent(scale * width)
-        this.setControl(scale * width - 5)
       }
     },
     beforeDestroy () {

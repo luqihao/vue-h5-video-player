@@ -7,6 +7,7 @@
       :controls="false"
       @canplay="initParams"
       @timeupdate="playing"
+      @ended="ended"
       ref="video">
       您的浏览器版本过低，并不支持video标签，请升级！
     </video>
@@ -17,11 +18,12 @@
       </div>
 
       <div class="track-progress-bar-wrapper">
-        <progress-bar id="track-progress-bar" ref="trackProgressBar">
-          <slot>
-            <div style="width: 0%" class="buffered-progress-percent"></div>
-          </slot>
-        </progress-bar>
+        <duration-progress-bar
+          :durationScale="current / this.duration"
+          :durationLeft="5 / durationWidth"
+          @dumpDurationTrack="dumpDurationTrack"
+          @wheelDurationTrack="wheelDurationTrack"
+          ref="durationProgressBar"/>
       </div>
 
       <div class="text text-s text-padding">
@@ -36,7 +38,7 @@
       </div>
 
       <div class="volume-progress-bar-wrapper">
-        <progress-bar id="volume-progress-bar"/>
+        <volume-progress-bar :volume="volume" @dumpVolumeTrack="dumpVolumeTrack" @wheelVolumeTrack="wheelVolumeTrack"/>
       </div>
 
       <div class="btn text text-s">
@@ -52,12 +54,14 @@
 
 <script>
   import 'font-awesome/css/font-awesome.min.css'
-  import progressBar from './progressBar'
+  import durationProgressBar from './durationProgressBar'
+  import volumeProgressBar from './volumeProgressBar'
+
   export default {
     props: {
       src: {
         type: String,
-        default: 'http://jq22com.qiniudn.com/jq22-sp.mp4'
+        default: 'http://183.232.50.136/657299AC7D438833442B716057/03000808025A54CEFEBA6D4EAED3198277BD3E-68CD-0457-6EDD-1AA44F94B33A.mp4?ccode=0502&duration=390&expire=18000&psid=ecfb4f25d0f4d6e5c8f0e4251bc53c6f&ups_client_netip=7b417f81&ups_ts=1515583322&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMwNDYwMzM2NA%3D%3D&vkey=Afa286ad3e71d59d4c737c9b00c58cb80&s=efbfbdefbfbd28cab5ef' // http://jq22com.qiniudn.com/jq22-sp.mp4
       },
       width: {
         type: Number,
@@ -69,7 +73,8 @@
       }
     },
     components: {
-      progressBar
+      durationProgressBar,
+      volumeProgressBar
     },
     data () {
       return {
@@ -78,7 +83,10 @@
         fullScreen: false,
         current: 0,
         duration: 0,
-        volume: 1
+        volume: 1,
+        volumeTemp: 1,
+        durationScale: 0,
+        durationWidth: 0
       }
     },
     computed: {
@@ -86,11 +94,16 @@
         return this.playOrPause ? '播放' : '暂停'
       },
       volumeTitle () {
-        return this.muted ? '取消静音' : '静音'
+        return this.mute ? '取消静音' : '静音'
       },
       fullScreenTitle () {
         return this.fullScreen ? '取消全屏' : '全屏'
       }
+    },
+    mounted () {
+      this.$nextTick(() => {
+        this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
+      })
     },
     methods: {
       playToggle () {
@@ -102,8 +115,8 @@
         this.playOrPause = !this.playOrPause
       },
       volumeToggle () {
+        this.volume = this.mute ? this.volumeTemp : 0
         this.mute = !this.mute
-        this.video.volume = this.mute ? this.volume : 0
       },
       fullScreenToggle () {
         this.fullScreen = !this.fullScreen
@@ -112,6 +125,9 @@
         } else {
           document.webkitExitFullscreen()
         }
+        setTimeout(() => {
+          this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
+        }, 20)
       },
       initParams () {
         this.video = this.$refs.video
@@ -122,7 +138,42 @@
       },
       playing () {
         this.current = this.video.currentTime
-        this.$refs.trackProgressBar.setCurrent(this.current / this.duration)
+      },
+      ended () {
+        this.playOrPause = true
+      },
+      dumpVolumeTrack (value) {
+        this.volume = value
+        this.volumeTemp = value
+      },
+      wheelVolumeTrack (flag) {
+        if (flag) {
+          if (this.volume + 0.02 <= 1) {
+            this.volume = this.volume + 0.02
+          }
+        } else {
+          if (this.volume - 0.02 >= 0) {
+            this.volume = this.volume - 0.02
+          }
+        }
+        this.volumeTemp = this.volume
+      },
+      dumpDurationTrack (scale) {
+        this.current = this.duration * scale
+        this.video.currentTime = this.current
+      },
+      wheelDurationTrack (flag) {
+        if (flag) {
+          if (this.current + 2 <= this.duration) {
+            this.current += 2
+            this.video.currentTime = this.current
+          }
+        } else {
+          if (this.current - 2 >= 0) {
+            this.current -= 2
+            this.video.currentTime = this.current
+          }
+        }
       }
     },
     filters: {
@@ -138,7 +189,13 @@
         return `${h}:${m}:${s}`
       },
       formateVolume (value) {
-        return value.toFixed(2) * 100
+        return Math.floor(value * 100)
+      }
+    },
+    watch: {
+      volume (value) {
+        if (value) this.mute = false
+        this.video.volume = value
       }
     }
   }
@@ -146,7 +203,7 @@
 
 <style lang="scss" scoped>
   #video::-webkit-media-controls-enclosure{
-    display:none !important;
+    display: none !important;
   }
   #video-player {
     position: relative;
@@ -196,15 +253,6 @@
       .track-progress-bar-wrapper {
         margin: 0 5px;
         flex: 1;
-        .buffered-progress-percent {
-          position: absolute;
-          left: 0;
-          top: 0;
-          z-index: -1;
-          width: 0;
-          height: 100%;
-          background-color: rgba(255, 155, 55, .4);
-        }
       }
       .volume-progress-bar-wrapper {
         margin: 0 5px;

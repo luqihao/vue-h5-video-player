@@ -1,0 +1,44 @@
+[17056:17060:0108/153349.766:VERBOSE1:crash_service_main.cc(78)] Session start. cmdline is [--reporter-url=https://crashreporter.atom.io --application-name=Atom "--crashes-directory=C:\Users\LUQIHAO\AppData\Local\Temp\Atom Crashes" --v=1]
+[17056:17060:0108/153349.770:VERBOSE1:crash_service.cc(142)] window handle is 00000000000304DA
+[17056:17060:0108/153349.770:VERBOSE1:crash_service.cc(284)] pipe name is \\.\pipe\Atom Crash Service
+dumps at C:\Users\LUQIHAO\AppData\Local\Temp\Atom Crashes
+[17056:17060:0108/153349.770:VERBOSE1:crash_service.cc(288)] checkpoint is C:\Users\LUQIHAO\AppData\Local\Temp\Atom Crashes\crash_checkpoint.txt
+server is https://crashreporter.atom.io
+maximum 128 reports/day
+reporter is electron-crash-service
+[17056:17060:0108/153349.770:VERBOSE1:crash_service_main.cc(94)] Ready to process crash requests
+[17056:17104:0108/153349.770:VERBOSE1:crash_service.cc(317)] client start. pid = 16860
+[17056:17104:0108/153351.168:VERBOSE1:crash_service.cc(317)] client start. pid = 17204
+[17056:17104:0108/174233.153:VERBOSE1:crash_service.cc(317)] client start. pid = 17440
+[17056:12148:0108/174253.932:VERBOSE1:crash_service.cc(325)] client end. pid = 17440
+[17056:17104:0108/174302.819:VERBOSE1:crash_service.cc(317)] client start. pid = 17532
+[17056:12148:0108/180252.250:VERBOSE1:crash_service.cc(325)] client end. pid = 17204
+[17056:12148:0108/180257.191:VERBOSE1:crash_service.cc(325)] client end. pid = 17532
+[17056:12148:0108/180257.384:VERBOSE1:crash_service.cc(325)] client end. pid = 16860
+[17056:12148:0108/180258.384:VERBOSE1:crash_service.cc(346)] zero clients. exiting
+[17056:17060:0108/180258.384:VERBOSE1:crash_service.cc(486)] session ending..
+[17056:17060:0108/180258.384:VERBOSE1:crash_service.cc(491)] clients connected :4
+clients terminated :4
+dumps serviced :0
+dumps reported :0
+[17056:17060:0108/180258.384:VERBOSE1:crash_service_main.cc(99)] Session end. return code is 0
+[12664:12120:0109/083553.661:VERBOSE1:crash_service_main.cc(78)] Session start. cmdline is [--reporter-url=https://crashreporter.atom.io --application-name=Atom "--crashes-directory=C:\Users\LUQIHAO\AppData\Local\Temp\Atom Crashes" --v=1]
+[12664:12120:0109/083553.683:VERBOSE1:crash_service.cc(142)] window handle is 0000000000090694
+[12664:12120:0109/083553.683:VERBOSE1:crash_service.cc(284)] pipe name is \\.\pipe\Atom Crash Service
+dumps at C:\Users\LUQIHAO\AppData\Local\Temp\Atom Crashes
+[12664:12120:0109/083553.683:VERBOSE1:crash_service.cc(288)] checkpoint is C:\Users\LUQIHAO\AppData\Local\Temp\Atom Crashes\crash_checkpoint.txt
+server is https://crashreporter.atom.io
+maximum 128 reports/day
+reporter is electron-crash-service
+[12664:12120:0109/083553.683:VERBOSE1:crash_service_main.cc(94)] Ready to process crash requests
+[12664:12944:0109/083553.683:VERBOSE1:crash_service.cc(317)] client start. pid = 8024
+[12664:12944:0109/083555.413:VERBOSE1:crash_service.cc(317)] client start. pid = 11140
+[12664:6020:0109/121521.720:VERBOSE1:crash_service.cc(325)] client end. pid = 11140
+[12664:6020:0109/121521.916:VERBOSE1:crash_service.cc(325)] client end. pid = 8024
+[12664:6020:0109/121522.918:VERBOSE1:crash_service.cc(346)] zero clients. exiting
+[12664:12120:0109/121522.918:VERBOSE1:crash_service.cc(486)] session ending..
+[12664:12120:0109/121522.918:VERBOSE1:crash_service.cc(491)] clients connected :2
+clients terminated :2
+dumps serviced :0
+dumps reported :0
+[12664:12120:0109/121522.918:VERBOSE1:crash_service_main.cc(99)] Session end. return code is 0

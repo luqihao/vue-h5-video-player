@@ -23,9 +23,8 @@
         window.addEventListener('mousemove', this.controlsDragging, false)
         window.addEventListener('mouseup', this.cancelDragging, false)
       },
-      controlsDragging (mousedownX) {
+      controlsDragging (e) {
         if (this.isDragging) {
-          let e = event || window.event
           this.dumpTrack(e)
         }
       },
@@ -41,8 +40,7 @@
           this.$emit('dumpVolumeTrack', left / width)
         }
       },
-      wheelTrack () {
-        let e = event || window.event
+      wheelTrack (e) {
         if (e.wheelDelta === 120) {
           this.$emit('wheelVolumeTrack', true)
         }
@@ -67,16 +65,17 @@
     cursor: pointer;
     .progress-percent {
         height: 100%;
-        background-color: rgba(255, 155, 55, 1);
+        background-color: rgba(55, 155, 255, 1);
     }
     .progress-control {
       position: absolute;
-      top: -2.5px;
+      top: 50%;
+      transform: translateY(-50%);
       z-index: 1;
       width: 10px;
       height: 10px;
       border-radius: 10px;
-      border: 2.5px solid #fff;
+      border: 3px solid #fff;
       box-sizing: border-box;
       box-shadow: .5px .5px 1px rgba(0, 0, 0, .8);
       background-color: rgba(55, 155, 255, 1);

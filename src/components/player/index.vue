@@ -45,9 +45,9 @@
         <b>{{volume | formateVolume}}</b>
       </div>
 
-      <div class="btn hover" @click="fullScreenToggle" :title="fullScreenTitle">
+      <!-- <div class="btn hover" @click="fullScreenToggle" :title="fullScreenTitle">
         <i class="fa" :class="{'fa-arrows-alt': !fullScreen, 'fa-arrows': fullScreen}" aria-hidden="true"></i>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -61,7 +61,7 @@
     props: {
       src: {
         type: String,
-        default: 'http://183.232.50.136/657299AC7D438833442B716057/03000808025A54CEFEBA6D4EAED3198277BD3E-68CD-0457-6EDD-1AA44F94B33A.mp4?ccode=0502&duration=390&expire=18000&psid=ecfb4f25d0f4d6e5c8f0e4251bc53c6f&ups_client_netip=7b417f81&ups_ts=1515583322&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMwNDYwMzM2NA%3D%3D&vkey=Afa286ad3e71d59d4c737c9b00c58cb80&s=efbfbdefbfbd28cab5ef' // http://jq22com.qiniudn.com/jq22-sp.mp4
+        default: 'http://jq22com.qiniudn.com/jq22-sp.mp4' // http://jq22com.qiniudn.com/jq22-sp.mp4
       },
       width: {
         type: Number,
@@ -120,10 +120,32 @@
       },
       fullScreenToggle () {
         this.fullScreen = !this.fullScreen
+        // console.log(this.video.mozRequestFullScreen)
         if (this.fullScreen) {
-          this.video.webkitRequestFullScreen()
+          try {
+            ['requestFullscreen', 'mozRequestFullScreen', 'webkitRequestFullscreen'].forEach((v) => {
+              if (v in this.video) {
+                this.video[v]()
+                throw v
+              }
+            })
+          } catch (err) {
+            console.log(err)
+          }
         } else {
-          document.webkitExitFullscreen()
+          const fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement
+          if (fullscreenElement) {
+            try {
+              ['exitFullscreen', 'msExitFullscreen', 'mozCancelFullScreen', 'webkitExitFullscreen'].forEach((v) => {
+                if (v in document) {
+                  document[v]()
+                  throw v
+                }
+              })
+            } catch (err) {
+              console.log(err)
+            }
+          }
         }
         setTimeout(() => {
           this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
@@ -135,6 +157,12 @@
         this.volume = this.video.volume
         this.duration = this.$refs.video.duration
         console.log('video already can play')
+      },
+      play () {
+        this.video.play()
+      },
+      pause () {
+        this.video.pause()
       },
       playing () {
         this.current = this.video.currentTime
@@ -202,29 +230,30 @@
 </script>
 
 <style lang="scss" scoped>
-  #video::-webkit-media-controls-enclosure{
+  #video::-webkit-media-controls-enclosure {
     display: none !important;
   }
   #video-player {
     position: relative;
     display: inline-block;
-    vertical-align: top;
     background: #000;
-    #video {
+    video {
       // object-fit: fill;
     }
     .video-controls-wrapper {
       position: absolute;
       left: 0;
       bottom: 0;
-      z-index: 3000000000;
+      z-index: 99999999999;
       display: flex;
       justify-content: center;
       align-items: center;
       width: 100%;
       height: 30px;
       background-color: #fff;
-      border: 1px solid rgba(0, 0, 0, .3);
+      border-left: 1px solid rgba(0, 0, 0, .3);
+      border-right: 1px solid rgba(0, 0, 0, .3);
+      border-bottom: 1px solid rgba(0, 0, 0, .3);
       box-sizing: border-box;
       user-select: none;
       .btn {

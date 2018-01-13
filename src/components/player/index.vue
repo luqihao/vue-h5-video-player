@@ -1,25 +1,48 @@
 <template>
-  <div id="video-player">
+  <div id="video-player"
+    :style="{'width': width + 'px', 'height': height + 'px'}"
+    :class="{'video-player-fullScreen': fullScreen}"
+    @mousemove="show"
+    ref="player">
     <video id="video"
       :src="src"
-      :width="width"
-      :height="height"
       :controls="false"
-      @canplay="initParams"
-      @timeupdate="playing"
-      @ended="ended"
+      @loadedmetadata="createPlayer"
+      @canplay="onCanplay"
+      @timeupdate="onTimeupdate"
+      @ended="onEnded"
+      @error="onError"
+      @waiting="onWaiting"
+      @click="playToggle"
       ref="video">
       您的浏览器版本过低，并不支持video标签，请升级！
     </video>
 
-    <div class="video-controls-wrapper">
+    <div class="shadow" v-show="!canPlay || error || playOrPause" @click.prevent="playToggle">
+
+    </div>
+
+    <div class="loading" v-show="!canPlay && !error">
+      <img src="./loading-bubbles.svg" width="64" height="64">
+    </div>
+
+    <div class="pausing" @click.prevent="playToggle" v-show="playOrPause && canPlay">
+      <i class="fa fa-play" aria-hidden="true"></i>
+    </div>
+
+    <div class="error" v-show="error">
+      <p>播放源出现问题...</p>
+    </div>
+
+    <div class="video-controls-wrapper" :class="{'hover': mouseMoving}">
       <div class="btn hover" @click="playToggle" :title="playTitle">
         <i class="fa" :class="{'fa-play': playOrPause, 'fa-pause': !playOrPause}" aria-hidden="true"></i>
       </div>
 
       <div class="track-progress-bar-wrapper">
         <duration-progress-bar
-          :durationScale="current / this.duration"
+          :bufferScale="buffer / duration"
+          :durationScale="current / duration"
           :durationLeft="5 / durationWidth"
           @dumpDurationTrack="dumpDurationTrack"
           @wheelDurationTrack="wheelDurationTrack"
@@ -45,9 +68,9 @@
         <b>{{volume | formateVolume}}</b>
       </div>
 
-      <!-- <div class="btn hover" @click="fullScreenToggle" :title="fullScreenTitle">
+      <div class="btn hover" @click="fullScreenToggle" :title="fullScreenTitle" ref="fullscreen">
         <i class="fa" :class="{'fa-arrows-alt': !fullScreen, 'fa-arrows': fullScreen}" aria-hidden="true"></i>
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -61,7 +84,7 @@
     props: {
       src: {
         type: String,
-        default: 'http://jq22com.qiniudn.com/jq22-sp.mp4' // http://jq22com.qiniudn.com/jq22-sp.mp4
+        default: 'http://183.232.50.243/6976B650C033282DAC92D93E21/03000A04005A0AEF9CBE52080D51C619BE4E10-5E40-4F3E-D130-DA2D8A937F0F.mp4?ccode=050F&duration=390&expire=18000&psid=27e7612099b798096ac484caa27193ab&ups_client_netip=7b417f81&ups_ts=1515831498&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XNTI4NjQyNjk2&vkey=Aee286787efcf2633726bb3255e8409db&s=cc001f06962411de83b1' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
       },
       width: {
         type: Number,
@@ -81,12 +104,17 @@
         playOrPause: true,
         mute: false,
         fullScreen: false,
+        buffer: 0,
         current: 0,
         duration: 0,
         volume: 1,
         volumeTemp: 1,
         durationScale: 0,
-        durationWidth: 0
+        durationWidth: 0,
+        mouseMoving: false,
+        timer: null,
+        error: false,
+        canPlay: false
       }
     },
     computed: {
@@ -103,9 +131,38 @@
     mounted () {
       this.$nextTick(() => {
         this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
+        window.addEventListener('keydown', this.keydown.bind(this), false)
       })
     },
     methods: {
+      keydown () {
+        let _this = this
+        window.onkeydown = function (e) {
+          if (e.keyCode === 32) {
+            if (window.event) { // ie
+              try {
+                e.keyCode = 0
+              } catch (e) {}
+              e.returnValue = false
+            } else { // firefox
+              e.preventDefault()
+            }
+            _this.playToggle()
+          }
+        }
+      },
+      throttle () {
+        let _this = this
+        clearTimeout(this.timer)
+        this.timer = setTimeout(() => {
+          _this.mouseMoving = false
+          clearTimeout(_this.timer)
+        }, 2000)
+      },
+      show () {
+        this.mouseMoving = true
+        this.throttle()
+      },
       playToggle () {
         if (this.playOrPause) {
           this.video.play()
@@ -120,12 +177,11 @@
       },
       fullScreenToggle () {
         this.fullScreen = !this.fullScreen
-        // console.log(this.video.mozRequestFullScreen)
         if (this.fullScreen) {
           try {
             ['requestFullscreen', 'mozRequestFullScreen', 'webkitRequestFullscreen'].forEach((v) => {
-              if (v in this.video) {
-                this.video[v]()
+              if (v in this.$refs.player) {
+                this.$refs.player[v]()
                 throw v
               }
             })
@@ -138,7 +194,9 @@
             try {
               ['exitFullscreen', 'msExitFullscreen', 'mozCancelFullScreen', 'webkitExitFullscreen'].forEach((v) => {
                 if (v in document) {
-                  document[v]()
+                  setTimeout(() => {
+                    document[v]()
+                  }, 0)
                   throw v
                 }
               })
@@ -151,24 +209,35 @@
           this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
         }, 20)
       },
-      initParams () {
+      createPlayer () {
         this.video = this.$refs.video
         this.current = this.video.currentTime
         this.volume = this.video.volume
-        this.duration = this.$refs.video.duration
-        console.log('video already can play')
+        this.duration = this.video.duration
+      },
+      onCanplay () {
+        this.canPlay = true
+        console.log('video is ready to play')
       },
       play () {
+        this.playOrPause = false
         this.video.play()
       },
       pause () {
         this.video.pause()
       },
-      playing () {
+      onTimeupdate () {
         this.current = this.video.currentTime
+        this.buffer = this.video.buffered.end(0)
       },
-      ended () {
+      onEnded () {
         this.playOrPause = true
+      },
+      onError () {
+        this.error = true
+      },
+      onWaiting () {
+        this.canPlay = false
       },
       dumpVolumeTrack (value) {
         this.volume = value
@@ -224,21 +293,61 @@
       volume (value) {
         if (value) this.mute = false
         this.video.volume = value
+      },
+      playOrPause () {
+        this.show()
       }
     }
   }
 </script>
 
 <style lang="scss" scoped>
-  #video::-webkit-media-controls-enclosure {
-    display: none !important;
-  }
   #video-player {
     position: relative;
     display: inline-block;
     background: #000;
+    &.video-player-fullScreen {
+      position: fixed !important;
+      z-index: 100000 !important;
+      left: 0;
+      top: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
     video {
-      // object-fit: fill;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+    }
+    .shadow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, .5);
+    }
+    .pausing {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      padding-left: 10px;
+      width: 100px;
+      height: 100px;
+      line-height: 100px;
+      text-align: center;
+      font-size: 50px;
+      color: #fff;
+      background-color: rgba(0, 0, 0, .5);
+      border-radius: 100px;
+      cursor: pointer;
+    }
+    .loading, .error {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%);
     }
     .video-controls-wrapper {
       position: absolute;
@@ -246,6 +355,7 @@
       bottom: 0;
       z-index: 99999999999;
       display: flex;
+      float: left;
       justify-content: center;
       align-items: center;
       width: 100%;
@@ -256,6 +366,11 @@
       border-bottom: 1px solid rgba(0, 0, 0, .3);
       box-sizing: border-box;
       user-select: none;
+      opacity: 0;
+      transition: opacity 1s;
+      &.hover {
+        opacity: 1;
+      }
       .btn {
         width: 30px;
         height: 30px;

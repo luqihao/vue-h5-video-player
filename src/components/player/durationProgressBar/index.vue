@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="progress-track" ref="track" @click.prevent="dumpTrack" @mousewheel.prevent="wheelTrack">
-    <div style="width: 0%" class="buffered-progress-percent"></div>
+    <div :style="{width: bufferScale * 100 + '%'}" class="buffered-progress-percent"></div>
     <div :style="{width: durationScale * 100 + '%'}" class="progress-percent" ref="percent"></div>
     <div :style="{left: (durationScale - durationLeft) * 100 + '%'}" class="progress-control" @mousedown.prevent="bindEvents" ref="control"></div>
   </div>
@@ -8,6 +8,10 @@
 <script>
   export default {
     props: {
+      bufferScale: {
+        type: Number,
+        default: 0
+      },
       durationScale: {
         type: Number,
         default: 0
@@ -74,7 +78,7 @@
       top: 0;
       z-index: -1;
       height: 100%;
-      background-color: rgba(255, 155, 55, .4);
+      background-color: rgba(55, 155, 255, .5);
     }
     .progress-percent {
       width: 0;

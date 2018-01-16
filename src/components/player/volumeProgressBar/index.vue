@@ -60,12 +60,12 @@
   .progress-track {
     position: relative;
     width: 100%;
-    height: 3px;
-    background-color: rgba(0, 0, 0, .2);
+    height: 5px;
+    background-color: rgba(255, 255, 255, .5);
     cursor: pointer;
     .progress-percent {
         height: 100%;
-        background-color: rgba(55, 155, 255, 1);
+        background-color: rgba(242, 156, 177, 1);
     }
     .progress-control {
       position: absolute;
@@ -78,7 +78,7 @@
       border: 3px solid #fff;
       box-sizing: border-box;
       box-shadow: .5px .5px 1px rgba(0, 0, 0, .8);
-      background-color: rgba(55, 155, 255, 1);
+      background-color: rgba(242, 156, 177, 1);
       cursor: pointer;
     }
   }

@@ -1,12 +1,12 @@
 <template lang="html">
   <div class="progress-track" ref="track"
-    @click.prevent="dumpTrack"
+    @mousedown.prevent="dumpTrack"
     @mousewheel.prevent="wheelTrack"
     @mousemove.prevent="getMovingTime"
     @mouseout.prevent="hideMovingTime">
     <div :style="{width: bufferScale * 100 + '%'}" class="buffered-progress-percent"></div>
     <div :style="{width: durationScale * 100 + '%'}" class="progress-percent" ref="percent"></div>
-    <div :style="{left: (durationScale - durationLeft) * 100 + '%'}" class="progress-control" @mousedown.prevent="bindEvents" ref="control"></div>
+    <div :style="{left: (durationScale - durationLeft) * 100 + '%'}" class="progress-control" @mousedown.stop.prevent="bindEvents" ref="control"></div>
     <div class="movingTime" :style="{left: movingLeft * 100 + '%'}" v-show="movingFlag">
       <b>{{movingTime}}</b>
     </div>
@@ -66,12 +66,13 @@
         this.isDragging = false
         window.removeEventListener('mousemove', this.controlsDragging, false)
         window.removeEventListener('mouseup', this.cancelDragging, false)
+        this.$emit('cancelDragging')
       },
       dumpTrack (e) {
         let left = e.clientX - this.$refs.track.getBoundingClientRect().left
         let width = this.$refs.track.getBoundingClientRect().width
         if (left <= width && left >= 0) {
-          this.$emit('dumpDurationTrack', left / width)
+          this.$emit('dumpDurationTrack', left / width, e.type)
         }
       },
       wheelTrack (e) {
@@ -97,6 +98,9 @@
     height: 5px;
     background-color: rgba(255, 255, 255, .5);
     cursor: pointer;
+    &:hover {
+      height: 10px;
+    }
     .buffered-progress-percent {
       position: absolute;
       left: 0;
@@ -134,6 +138,7 @@
       background-color: #fff;
       border: 2px solid rgba(242, 156, 177, 1);
       border-radius: 3px;
+      box-sizing: border-box;
       &::after {
         content: '';
         position: absolute;

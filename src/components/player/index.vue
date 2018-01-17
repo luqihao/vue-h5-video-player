@@ -49,6 +49,7 @@
           :movingTime="movingTime | formateTime"
           @getMovingTime="getMovingTime"
           @dumpDurationTrack="dumpDurationTrack"
+          @cancelDragging="play"
           @wheelDurationTrack="wheelDurationTrack"
           ref="durationProgressBar"/>
       </div>
@@ -89,7 +90,7 @@
     props: {
       src: {
         type: String,
-        default: 'http://183.240.21.83/677184B6B7E3F83BB393955A8E/03001101005A55CD53BC174667F75EBB525462-E2D7-3A2C-403B-14FA2FAC3011.mp4?ccode=050F&duration=865&expire=18000&psid=365dfc259b5eda3f655843b854afe1d6&ups_client_netip=7b417f81&ups_ts=1516083783&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMwNjUyNTkyNA%3D%3D&vkey=A9467964e06263bb4f08a404fecee413a&s=3c64efbfbd707befbfbd' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
+        default: 'http://k.youku.com/player/getFlvPath/sid/0516159537536128db1c7/st/mp4/fileid/03001101005A59DD4A2765402DA2981A896512-0632-B6A3-B4C4-08076D2DC5F1?k=9b496fa146848b6d2413476a&hd=0&myp=0&ts=860&ctype=12&ev=1&token=0534&oip=2067890049&ep=cieVHEiIX8sD4ibcjj8bb3iwdSQIXP4J9h%2BEgNJjALshOe227UrVtp%2B3SPpGFvttAyAPGOqAo9nh%0Ab0EWYfBFqmoQrUjZOvqS%2BoPn5a1bxJcGEhtCAcihtVSeRjP1&ccode=050F&duration=860&expire=18000&psid=f90d271abf80f2a3e99722aa4382c71f&ups_client_netip=7b417f81&ups_ts=1516159537&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMxNTI4OTgzNg%3D%3D&vkey=A25e1717e0b88202c3b9a49377109ae57' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
       },
       width: {
         type: Number,
@@ -221,8 +222,9 @@
         this.canPlay = true
       },
       play () {
-        this.playOrPause = false
-        this.video.play()
+        setTimeout(() => {
+          if (!this.playOrPause) this.video.play()
+        }, 20)
       },
       pause () {
         this.video.pause()
@@ -232,7 +234,7 @@
       },
       onProgress () {
         // 第一次播放后可能存在缓存所以之后刷新不会再有progress这个过程，所以buffer进度条的宽度不会发生变化
-        // 因此要在video监听canplaythrough事件
+        // 因此要把该函数注册到canplaythrough事件上
         try {
           this.buffer = this.$refs.video.buffered.end(0)
         } catch (err) {
@@ -267,9 +269,10 @@
         }
         this.volumeTemp = this.volume
       },
-      dumpDurationTrack (scale) {
+      dumpDurationTrack (scale, type) {
         this.current = this.duration * scale
         this.video.currentTime = this.current
+        if (type === 'mousemove') this.pause()
       },
       wheelDurationTrack (flag) {
         if (flag) {

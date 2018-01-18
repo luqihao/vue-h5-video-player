@@ -2,47 +2,47 @@
   <div id="video-player"
     :style="{'width': width + 'px', 'height': height + 'px'}"
     :class="{'video-player-fullScreen': fullScreen}"
-    @mousemove="show"
-    ref="player">
-    <video id="video"
-      :src="src"
-      :controls="false"
-      @loadedmetadata="createPlayer"
-      @progress="onProgress"
-      @canplay="onCanplay"
-      @canplaythrough="onProgress"
-      @timeupdate="onTimeupdate"
-      @ended="onEnded"
-      @error="onError"
-      @waiting="onWaiting"
-      @click="playToggle"
-      ref="video">
-      您的浏览器版本过低，并不支持video标签，请升级！
-    </video>
+    @mousemove="show">
+    <div class="player" ref="player">
+      <video id="video"
+        width="100%"
+        height="100%"
+        :src="src"
+        :controls="false"
+        @loadedmetadata="createPlayer"
+        @progress="onProgress"
+        @canplay="onCanplay"
+        @canplaythrough="onProgress"
+        @timeupdate="onTimeupdate"
+        @ended="onEnded"
+        @error="onError"
+        @waiting="onWaiting"
+        @click="playToggle"
+        ref="video">
+        您的浏览器版本过低，并不支持video标签，请升级！
+      </video>
 
-    <div class="shadow" v-show="!canPlay || error || playOrPause" @click.prevent="playToggle">
+      <div class="shadow" v-show="!canPlay || error || playOrPause" @click.prevent="playToggle"></div>
 
-    </div>
-
-    <div class="loading" v-show="!canPlay && !error">
-      <img src="./loading-bubbles.svg" width="64" height="64">
-    </div>
-
-    <div class="pausing hover" @click.prevent="playToggle" v-show="playOrPause && canPlay">
-      <i class="icon icon-play"></i>
-    </div>
-
-    <div class="error" v-show="error">
-      <p>播放源出现问题...</p>
-    </div>
-
-    <div class="video-controls-wrapper" :class="{'hover': mouseMoving}">
-      <div class="btn hover" @click="playToggle" :title="playTitle">
-        <i :class="{'icon icon-play': playOrPause, 'icon icon-pause': !playOrPause}"></i>
+      <div class="loading" v-show="!canPlay && !error">
+        <img src="./loading-bubbles.svg" width="64" height="64">
       </div>
 
-      <div class="track-progress-bar-wrapper">
-        <duration-progress-bar
+      <div class="pausing hover" @click.prevent="playToggle" v-show="playOrPause && canPlay">
+        <i class="icon icon-play"></i>
+      </div>
+
+      <div class="error" v-show="error">
+        <p>播放源出现问题...</p>
+      </div>
+
+      <div class="video-controls-wrapper" :class="{'hover': mouseMoving}">
+        <div class="btn hover" @click="playToggle" :title="playTitle">
+          <i :class="{'icon icon-play': playOrPause, 'icon icon-pause': !playOrPause}"></i>
+        </div>
+
+        <div class="track-progress-bar-wrapper">
+          <duration-progress-bar
           :bufferScale="buffer / duration"
           :durationScale="current / duration"
           :durationLeft="5 / durationWidth"
@@ -52,29 +52,30 @@
           @cancelDragging="play"
           @wheelDurationTrack="wheelDurationTrack"
           ref="durationProgressBar"/>
-      </div>
+        </div>
 
-      <div class="text text-s text-padding">
-        <b>{{current | formateTime}}</b>
-        /
-        <b>{{duration | formateTime}}</b>
-      </div>
+        <div class="text text-s text-padding">
+          <b>{{current | formateTime}}</b>
+          /
+          <b>{{duration | formateTime}}</b>
+        </div>
 
 
-      <div class="btn hover" @click="volumeToggle" :title="volumeTitle">
-        <i :class="{'icon icon-volume-medium': volume > 0.5 && volume <= 1, 'icon icon-volume-low': volume > 0 && volume <= 0.5,'icon icon-volume-mute': volume === 0}"></i>
-      </div>
+        <div class="btn hover" @click="volumeToggle" :title="volumeTitle">
+          <i :class="{'icon icon-volume-medium': volume > 0.5 && volume <= 1, 'icon icon-volume-low': volume > 0 && volume <= 0.5,'icon icon-volume-mute': volume === 0}"></i>
+        </div>
 
-      <div class="volume-progress-bar-wrapper">
-        <volume-progress-bar :volume="volume" @dumpVolumeTrack="dumpVolumeTrack" @wheelVolumeTrack="wheelVolumeTrack"/>
-      </div>
+        <div class="volume-progress-bar-wrapper">
+          <volume-progress-bar :volume="volume" @dumpVolumeTrack="dumpVolumeTrack" @wheelVolumeTrack="wheelVolumeTrack"/>
+        </div>
 
-      <div class="btn text text-s">
-        <b>{{volume | formateVolume}}</b>
-      </div>
+        <div class="btn text text-s">
+          <b>{{volume | formateVolume}}</b>
+        </div>
 
-      <div class="btn hover" @click="fullScreenToggle" :title="fullScreenTitle" ref="fullscreen">
-        <i :class="{'icon icon-fullscreen': !fullScreen, 'icon icon-notFullscreen': fullScreen}"></i>
+        <div class="btn hover" @click="fullScreenToggle" :title="fullScreenTitle" ref="fullscreen">
+          <i :class="{'icon icon-fullscreen': !fullScreen, 'icon icon-notFullscreen': fullScreen}"></i>
+        </div>
       </div>
     </div>
   </div>
@@ -82,7 +83,7 @@
 
 <script>
   import './icon.css'
-  import './reset.css'
+  // import './reset.css'
   import durationProgressBar from './durationProgressBar'
   import volumeProgressBar from './volumeProgressBar'
 
@@ -90,15 +91,15 @@
     props: {
       src: {
         type: String,
-        default: 'http://k.youku.com/player/getFlvPath/sid/0516159537536128db1c7/st/mp4/fileid/03001101005A59DD4A2765402DA2981A896512-0632-B6A3-B4C4-08076D2DC5F1?k=9b496fa146848b6d2413476a&hd=0&myp=0&ts=860&ctype=12&ev=1&token=0534&oip=2067890049&ep=cieVHEiIX8sD4ibcjj8bb3iwdSQIXP4J9h%2BEgNJjALshOe227UrVtp%2B3SPpGFvttAyAPGOqAo9nh%0Ab0EWYfBFqmoQrUjZOvqS%2BoPn5a1bxJcGEhtCAcihtVSeRjP1&ccode=050F&duration=860&expire=18000&psid=f90d271abf80f2a3e99722aa4382c71f&ups_client_netip=7b417f81&ups_ts=1516159537&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMxNTI4OTgzNg%3D%3D&vkey=A25e1717e0b88202c3b9a49377109ae57' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
+        default: 'http://jq22com.qiniudn.com/jq22-sp.mp4' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
       },
       width: {
         type: Number,
-        default: 500
+        default: 700
       },
       height: {
         type: Number,
-        default: 350
+        default: 500
       }
     },
     components: {
@@ -109,7 +110,7 @@
       return {
         video: null,
         playOrPause: true,
-        fullScreen: false,
+        fullScreen: 0,
         buffer: 0,
         current: 0,
         duration: 0,
@@ -138,26 +139,32 @@
     mounted () {
       this.$nextTick(() => {
         this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
-        window.addEventListener('keydown', this.keydown.bind(this), false)
+        this.bindFullscreenChange()
       })
     },
     methods: {
-      keydown () {
-        let _this = this
-        window.onkeydown = function (e) {
-          if (e.keyCode === 32) {
-            if (window.event) { // ie
-              try {
-                e.keyCode = 0
-              } catch (e) {}
-              e.returnValue = false
-            } else { // firefox
-              e.preventDefault()
-            }
-            _this.playToggle()
-          }
-        }
+      fullscreenChange () {
+        let fullscreenEle = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement
+        this.fullScreen = fullscreenEle ? 1 : 0
       },
+      bindFullscreenChange () {
+        ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(f => {
+          document.addEventListener(f, this.fullscreenChange.bind(this))
+        })
+      },
+      // keydown (e) {
+      //   if (e.keyCode === 32) {
+      //     if (window.event) { // ie
+      //       try {
+      //         e.keyCode = 0
+      //       } catch (e) {}
+      //       e.returnValue = false
+      //     } else { // firefox
+      //       e.preventDefault()
+      //     }
+      //     this.playToggle()
+      //   }
+      // },
       throttle () {
         let _this = this
         clearTimeout(this.timer)
@@ -176,11 +183,14 @@
         this.playOrPause = !this.playOrPause
       },
       volumeToggle () {
-        this.volume = this.volume === 0 ? this.volumeTemp : 0
+        this.volume = this.volume === 0
+        ? this.volumeTemp === 0
+        ? 1
+        : this.volumeTemp
+        : 0
       },
       fullScreenToggle () {
-        this.fullScreen = !this.fullScreen
-        if (this.fullScreen) {
+        if (!this.fullScreen) {
           try {
             ['requestFullscreen', 'mozRequestFullScreen', 'webkitRequestFullscreen'].forEach((v) => {
               if (v in this.$refs.player) {
@@ -208,6 +218,8 @@
             }
           }
         }
+        // 这里设置延迟是为上面的全屏事件应该是异步操作，所以按下全屏按钮后并非立即执行全屏，因此这里要设置延迟要在执行全屏之后再获取对应的宽度，这样显示才不会出错
+        // 本来延迟设置的是20ms,但是火狐浏览器20ms后执行还是全屏前的宽度，所以要设置更久才行（以最新的版本测试至少要210）
         setTimeout(() => {
           this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
         }, 20)
@@ -295,10 +307,11 @@
           Math.floor(value % 3600 / 60),
           Math.floor(value % 60)
         ]
-        h = h < 10 ? '0' + h : h
+        if (h >= 3600) h = h < 10 ? '0' + h : h
+        else h = ''
         m = m < 10 ? '0' + m : m
         s = s < 10 ? '0' + s : s
-        return `${h}:${m}:${s}`
+        return h ? `${h}:${m}:${s}` : `${m}:${s}`
       },
       formateVolume (value) {
         return Math.floor(value * 100)
@@ -319,103 +332,99 @@
   #video-player {
     position: relative;
     display: inline-block;
-    background: #000;
-    &.video-player-fullScreen {
-      position: fixed !important;
-      z-index: 100000 !important;
-      left: 0;
-      top: 0;
-      width: 100% !important;
-      height: 100% !important;
-    }
-    video {
+    background-color: #000;
+    .player {
       width: 100%;
       height: 100%;
-      object-fit: fill;
-    }
-    .shadow {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, .5);
-    }
-    .pausing {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translateX(-50%) translateY(-50%);
-      text-shadow: 0px 0px 10px rgba(255, 255, 255, 1);
-      cursor: pointer;
-      i {
-        font-size: 50px;
-        color: rgba(242, 156, 177, 1);
+      video {
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
       }
-    }
-    .loading, .error {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translateX(-50%) translateY(-50%);
-      color: rgba(242, 156, 177, 1);
-    }
-    .video-controls-wrapper {
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      z-index: 99999999999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 0 10px;
-      width: 100%;
-      height: 50px;
-      background-color: rgba(0, 0, 0, .3);
-      box-sizing: border-box;
-      user-select: none;
-      opacity: 0;
-      transition: opacity 1s;
-      &:hover, &.hover {
-        opacity: 1;
+      .shadow {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, .5);
       }
-      .btn {
-        width: 30px;
-        height: 30px;
-        text-align: center;
-        line-height: 30px;
-        font-size: 20px;
-        color: rgba(255, 255, 255, 1);
-      }
-      .hover:hover {
-        color: rgba(242, 156, 177, 1);
+      .pausing {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translateX(-50%) translateY(-50%);
         text-shadow: 0px 0px 10px rgba(255, 255, 255, 1);
         cursor: pointer;
-      }
-      .text {
-        color: rgba(255, 255, 255, 1);
-        font-weight: 700;
-        &.text-s {
-          font-size: 12px;
-        }
-        &.text-m {
-          font-size: 20px;
-        }
-        &.text-padding {
-          padding: 0 10px;
+        i {
+          font-size: 50px;
+          color: rgba(242, 156, 177, 1);
         }
       }
-      .track-progress-bar-wrapper {
-        margin: 0 5px;
-        flex: 1;
+      .loading, .error {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        color: rgba(242, 156, 177, 1);
       }
-      .volume-progress-bar-wrapper {
-        margin: 0 5px;
+      .video-controls-wrapper {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        z-index: 99999999999;
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 50px;
+        padding: 0 10px;
+        width: 100%;
         height: 50px;
+        background-color: rgba(0, 0, 0, .3);
+        box-sizing: border-box;
+        user-select: none;
+        opacity: 0;
+        transition: opacity 1s;
+        &:hover, &.hover {
+          opacity: 1;
+        }
+        .btn {
+          width: 30px;
+          height: 30px;
+          text-align: center;
+          line-height: 30px;
+          font-size: 20px;
+          color: rgba(255, 255, 255, 1);
+        }
+        .hover:hover {
+          color: rgba(242, 156, 177, 1);
+          text-shadow: 0px 0px 10px rgba(255, 255, 255, 1);
+          cursor: pointer;
+        }
+        .text {
+          color: rgba(255, 255, 255, 1);
+          font-weight: 700;
+          &.text-s {
+            font-size: 12px;
+          }
+          &.text-m {
+            font-size: 20px;
+          }
+          &.text-padding {
+            padding: 0 10px;
+          }
+        }
+        .track-progress-bar-wrapper {
+          margin: 0 5px;
+          flex: 1;
+        }
+        .volume-progress-bar-wrapper {
+          margin: 0 5px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 50px;
+          height: 50px;
+        }
       }
     }
   }

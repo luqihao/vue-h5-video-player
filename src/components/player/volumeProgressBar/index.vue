@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="progress-track" ref="track" @click.prevent="dumpTrack" @mousewheel.prevent="wheelTrack">
+  <div class="progress-track" ref="track" @mousedown.prevent="dumpTrack" @mousewheel.prevent="wheelTrack">
     <div :style="{width: volume * 50 + 'px'}" class="progress-percent" ref="percent"></div>
     <div :style="{left: volume * 50 - 5 + 'px'}" class="progress-control" @mousedown.prevent="bindEvents" ref="control"></div>
   </div>

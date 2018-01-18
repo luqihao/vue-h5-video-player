@@ -135,7 +135,7 @@
       left: -30px;
       width: 60px;
       text-align: center;
-      background-color: #fff;
+      background-color: #000;
       border: 2px solid rgba(242, 156, 177, 1);
       border-radius: 3px;
       box-sizing: border-box;

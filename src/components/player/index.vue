@@ -140,6 +140,7 @@
       this.$nextTick(() => {
         this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
         this.bindFullscreenChange()
+        window.addEventListener('keydown', this.keydown.bind(this), false)
       })
     },
     methods: {
@@ -152,19 +153,19 @@
           document.addEventListener(f, this.fullscreenChange.bind(this))
         })
       },
-      // keydown (e) {
-      //   if (e.keyCode === 32) {
-      //     if (window.event) { // ie
-      //       try {
-      //         e.keyCode = 0
-      //       } catch (e) {}
-      //       e.returnValue = false
-      //     } else { // firefox
-      //       e.preventDefault()
-      //     }
-      //     this.playToggle()
-      //   }
-      // },
+      keydown (e) {
+        if (e.keyCode === 32) {
+          if (window.event) { // ie
+            try {
+              e.keyCode = 0
+            } catch (e) {}
+            e.returnValue = false
+          } else { // firefox
+            e.preventDefault()
+          }
+          if (this.fullScreen) this.playToggle()
+        }
+      },
       throttle () {
         let _this = this
         clearTimeout(this.timer)

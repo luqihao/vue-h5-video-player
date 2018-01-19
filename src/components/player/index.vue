@@ -83,7 +83,6 @@
 
 <script>
   import './icon.css'
-  // import './reset.css'
   import durationProgressBar from './durationProgressBar'
   import volumeProgressBar from './volumeProgressBar'
 
@@ -91,7 +90,7 @@
     props: {
       src: {
         type: String,
-        default: 'http://jq22com.qiniudn.com/jq22-sp.mp4' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
+        default: 'http://k.youku.com/player/getFlvPath/sid/051633349934412414d77/st/mp4/fileid/03001101005A53488A079D4E92B49A82373888-44FF-730B-6B27-86EFF88126A8?k=46dc2a91887bddde282cfd4a&hd=0&myp=0&ts=608&ctype=12&ev=1&token=0524&oip=2067890049&ep=cieVHEqOVcoJ7CDbjD8bYy3mIHAIXP4J9h%2BEgNJjALshOe28nTbZtp23R4tGY%2FAbACYPYePzqNfk%0AYkgcYfRH3x4Q2E2oS%2FrmjPLk5aVVseZ2bhE3cMumvFSeRjL1&ccode=050F&duration=608&expire=18000&psid=f742da618bab34ccf4e9a13fcdfa166f&ups_client_netip=7b417f81&ups_ts=1516333499&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMxODc1NDgyOA%3D%3D&vkey=A88e58e66462fb000b832800424933568' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
       },
       width: {
         type: Number,
@@ -147,6 +146,8 @@
       fullscreenChange () {
         let fullscreenEle = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement
         this.fullScreen = fullscreenEle ? 1 : 0
+        // 全屏或者取消全屏后为了保证控制条按钮的left值显示无误而需要重新获取进度条的宽度
+        this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
       },
       bindFullscreenChange () {
         ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(f => {
@@ -160,7 +161,7 @@
               e.keyCode = 0
             } catch (e) {}
             e.returnValue = false
-          } else { // firefox
+          } else {
             e.preventDefault()
           }
           if (this.fullScreen) this.playToggle()
@@ -200,7 +201,7 @@
               }
             })
           } catch (err) {
-            console.log(err)
+            // console.log(err)
           }
         } else {
           const fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement
@@ -215,15 +216,21 @@
                 }
               })
             } catch (err) {
-              console.log(err)
+              // console.log(err)
             }
           }
         }
-        // 这里设置延迟是为上面的全屏事件应该是异步操作，所以按下全屏按钮后并非立即执行全屏，因此这里要设置延迟要在执行全屏之后再获取对应的宽度，这样显示才不会出错
-        // 本来延迟设置的是20ms,但是火狐浏览器20ms后执行还是全屏前的宽度，所以要设置更久才行（以最新的版本测试至少要210）
+      },
+      getMovingTime (scale) {
+        this.movingTime = this.duration * scale
+      },
+      play () {
         setTimeout(() => {
-          this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
+          if (!this.playOrPause) this.video.play()
         }, 20)
+      },
+      pause () {
+        this.video.pause()
       },
       createPlayer () {
         this.video = this.$refs.video
@@ -234,14 +241,6 @@
       onCanplay () {
         this.canPlay = true
       },
-      play () {
-        setTimeout(() => {
-          if (!this.playOrPause) this.video.play()
-        }, 20)
-      },
-      pause () {
-        this.video.pause()
-      },
       onTimeupdate () {
         this.current = this.video.currentTime
       },
@@ -251,7 +250,7 @@
         try {
           this.buffer = this.$refs.video.buffered.end(0)
         } catch (err) {
-          console.log(err)
+          // console.log(err)
         }
       },
       onEnded () {
@@ -262,9 +261,6 @@
       },
       onWaiting () {
         this.canPlay = false
-      },
-      getMovingTime (scale) {
-        this.movingTime = this.duration * scale
       },
       dumpVolumeTrack (value) {
         this.volume = value

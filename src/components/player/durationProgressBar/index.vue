@@ -3,7 +3,9 @@
     @mousedown.prevent="dumpTrack"
     @mousewheel.prevent="wheelTrack"
     @mousemove.prevent="getMovingTime"
+    @mouseover.prevent="getMovingTime"
     @mouseout.prevent="hideMovingTime">
+    <!-- 添加mouseover监听是因为如果只有mousemove的话那个时间显示会出现闪烁或者不显示的情况 -->
     <div :style="{width: bufferScale * 100 + '%'}" class="buffered-progress-percent"></div>
     <div :style="{width: durationScale * 100 + '%'}" class="progress-percent" ref="percent"></div>
     <div :style="{left: (durationScale - durationLeft) * 100 + '%'}" class="progress-control" @mousedown.stop.prevent="bindEvents" ref="control"></div>

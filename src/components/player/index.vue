@@ -17,6 +17,8 @@
         @ended="onEnded"
         @error="onError"
         @waiting="onWaiting"
+        @playing="onPlaying"
+        @seeked="onSeeked"
         @click="playToggle"
         ref="video">
         您的浏览器版本过低，并不支持video标签，请升级！
@@ -25,7 +27,11 @@
       <div class="shadow" v-show="!canPlay || error || playOrPause" @click.prevent="playToggle"></div>
 
       <div class="loading" v-show="!canPlay && !error">
-        <img src="./loading-bubbles.svg" width="64" height="64">
+        <!-- <img src="./loading-bubbles.svg" width="64" height="64"> -->
+        <!-- <img src="./loading.gif" width="64" height="10"> -->
+        <div class="circle circle1"></div>
+        <div class="circle circle2"></div>
+        <div class="circle circle3"></div>
       </div>
 
       <div class="pausing hover" @click.prevent="playToggle" v-show="playOrPause && canPlay">
@@ -90,7 +96,7 @@
     props: {
       src: {
         type: String,
-        default: 'http://k.youku.com/player/getFlvPath/sid/051633349934412414d77/st/mp4/fileid/03001101005A53488A079D4E92B49A82373888-44FF-730B-6B27-86EFF88126A8?k=46dc2a91887bddde282cfd4a&hd=0&myp=0&ts=608&ctype=12&ev=1&token=0524&oip=2067890049&ep=cieVHEqOVcoJ7CDbjD8bYy3mIHAIXP4J9h%2BEgNJjALshOe28nTbZtp23R4tGY%2FAbACYPYePzqNfk%0AYkgcYfRH3x4Q2E2oS%2FrmjPLk5aVVseZ2bhE3cMumvFSeRjL1&ccode=050F&duration=608&expire=18000&psid=f742da618bab34ccf4e9a13fcdfa166f&ups_client_netip=7b417f81&ups_ts=1516333499&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMxODc1NDgyOA%3D%3D&vkey=A88e58e66462fb000b832800424933568' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
+        default: 'http://k.youku.com/player/getFlvPath/sid/0516686760104124b95a8/st/mp4/fileid/03001101005A6209593E6045674085D28C58A4-A0E6-8F6E-335A-D38777E1EB7F?k=d512d877727cfd6a24134921&hd=0&myp=0&ts=1383&ctype=12&ev=1&token=0524&oip=2067890049&ep=cieVHE%2BFUMkG5SLfjD8bY37rcSYHXP4J9h%2BEgNJjALshOe69mTfUzp7FSP9GE%2F8ediIOFZ%2Fzo6Pi%0AYjEQYYFD3G4Q1ziuTPrj%2FfWS5dlQzJcHYWw3B7%2FQwlSeRjL1&ccode=050F&duration=1383&expire=18000&psid=d9e9d0ef51e81527cb25d722efb6e341&ups_client_netip=7b417f81&ups_ts=1516686760&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMzMzUwNTg4NA%3D%3D&vkey=A907a3d8eb1c556fe88d329befb68a096' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
       },
       width: {
         type: Number,
@@ -144,14 +150,17 @@
     },
     methods: {
       fullscreenChange () {
-        let fullscreenEle = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement
+        let fullscreenEle = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement
+        console.log(fullscreenEle)
         this.fullScreen = fullscreenEle ? 1 : 0
         // 全屏或者取消全屏后为了保证控制条按钮的left值显示无误而需要重新获取进度条的宽度
         this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
       },
       bindFullscreenChange () {
-        ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(f => {
+        console.log('beforeBind');
+        ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'msfullscreenchange'].forEach(f => {
           document.addEventListener(f, this.fullscreenChange.bind(this))
+          console.log('afterBind')
         })
       },
       keydown (e) {
@@ -194,30 +203,25 @@
       fullScreenToggle () {
         if (!this.fullScreen) {
           try {
-            ['requestFullscreen', 'mozRequestFullScreen', 'webkitRequestFullscreen'].forEach((v) => {
+            ['requestFullscreen', 'mozRequestFullScreen', 'webkitRequestFullscreen', 'msRequestFullscreen'].forEach((v) => {
               if (v in this.$refs.player) {
                 this.$refs.player[v]()
                 throw v
               }
             })
           } catch (err) {
-            // console.log(err)
+            console.log(err)
           }
         } else {
-          const fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement
-          if (fullscreenElement) {
-            try {
-              ['exitFullscreen', 'msExitFullscreen', 'mozCancelFullScreen', 'webkitExitFullscreen'].forEach((v) => {
-                if (v in document) {
-                  setTimeout(() => {
-                    document[v]()
-                  }, 0)
-                  throw v
-                }
-              })
-            } catch (err) {
-              // console.log(err)
-            }
+          try {
+            ['exitFullscreen', 'mozCancelFullScreen', 'webkitExitFullscreen', 'msExitFullscreen'].forEach((v) => {
+              if (v in document) {
+                document[v]()
+                throw v
+              }
+            })
+          } catch (err) {
+            console.log(err)
           }
         }
       },
@@ -237,6 +241,9 @@
         this.current = this.video.currentTime
         this.volume = this.video.volume
         this.duration = this.video.duration
+      },
+      onSeeked () {
+        this.canPlay = true
       },
       onCanplay () {
         this.canPlay = true
@@ -261,6 +268,9 @@
       },
       onWaiting () {
         this.canPlay = false
+      },
+      onPlaying () {
+        this.canPlay = true
       },
       dumpVolumeTrack (value) {
         this.volume = value
@@ -326,6 +336,17 @@
 </script>
 
 <style lang="scss" scoped>
+  @keyframes circle {
+    0% {
+      transform: scale(0);
+    }
+    50% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0);
+    }
+  }
   #video-player {
     position: relative;
     display: inline-block;
@@ -342,6 +363,7 @@
         position: absolute;
         left: 0;
         top: 0;
+        z-index: 1;
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, .5);
@@ -351,6 +373,7 @@
         left: 50%;
         top: 50%;
         transform: translateX(-50%) translateY(-50%);
+        z-index: 2;
         text-shadow: 0px 0px 10px rgba(255, 255, 255, 1);
         cursor: pointer;
         i {
@@ -358,11 +381,30 @@
           color: rgba(242, 156, 177, 1);
         }
       }
+      .loading {
+        .circle {
+          display: inline-block;
+          width: 15px;
+          height: 15px;
+          border-radius: 15px;
+          background-color: rgba(242, 156, 177, 1);
+          box-shadow: 0 0 10px #fff;
+          transform: scale(0);
+          animation: circle .8s ease-out infinite;
+          &.circle2 {
+            animation-delay: 0.25s;
+          }
+          &.circle3 {
+            animation-delay: 0.5s;
+          }
+        }
+      }
       .loading, .error {
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translateX(-50%) translateY(-50%);
+        z-index: 2;
         color: rgba(242, 156, 177, 1);
       }
       .video-controls-wrapper {

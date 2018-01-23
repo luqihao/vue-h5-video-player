@@ -17,7 +17,6 @@
         @ended="onEnded"
         @error="onError"
         @waiting="onWaiting"
-        @playing="onPlaying"
         @seeked="onSeeked"
         @click="playToggle"
         ref="video">
@@ -242,9 +241,6 @@
         this.volume = this.video.volume
         this.duration = this.video.duration
       },
-      onSeeked () {
-        this.canPlay = true
-      },
       onCanplay () {
         this.canPlay = true
       },
@@ -269,7 +265,7 @@
       onWaiting () {
         this.canPlay = false
       },
-      onPlaying () {
+      onSeeked () {
         this.canPlay = true
       },
       dumpVolumeTrack (value) {

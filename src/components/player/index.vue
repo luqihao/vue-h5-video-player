@@ -1,7 +1,7 @@
 <template>
   <div id="video-player"
     :style="{'width': width + 'px', 'height': height + 'px'}"
-    :class="{'video-player-fullScreen': fullScreen}"
+    :class="{'video-player-fullScreen': fullscreen}"
     @mousemove="show">
     <div class="player" ref="player">
       <video id="video"
@@ -23,17 +23,15 @@
         您的浏览器版本过低，并不支持video标签，请升级！
       </video>
 
-      <div class="shadow" v-show="!canPlay || error || playOrPause" @click.prevent="playToggle"></div>
+      <div class="shadow" v-show="!canplay || error || playOrPause" @click.prevent="playToggle"></div>
 
-      <div class="loading" v-show="!canPlay && !error">
-        <!-- <img src="./loading-bubbles.svg" width="64" height="64"> -->
-        <!-- <img src="./loading.gif" width="64" height="10"> -->
+      <div class="loading" v-show="!canplay && !error">
         <div class="circle circle1"></div>
         <div class="circle circle2"></div>
         <div class="circle circle3"></div>
       </div>
 
-      <div class="pausing hover" @click.prevent="playToggle" v-show="playOrPause && canPlay">
+      <div class="pausing hover" @click.prevent="playToggle" v-show="playOrPause && canplay">
         <i class="icon icon-play"></i>
       </div>
 
@@ -79,7 +77,7 @@
         </div>
 
         <div class="btn hover" @click="fullScreenToggle" :title="fullScreenTitle" ref="fullscreen">
-          <i :class="{'icon icon-fullscreen': !fullScreen, 'icon icon-notFullscreen': fullScreen}"></i>
+          <i :class="{'icon icon-fullscreen': !fullscreen, 'icon icon-notFullscreen': fullscreen}"></i>
         </div>
       </div>
     </div>
@@ -95,7 +93,7 @@
     props: {
       src: {
         type: String,
-        default: 'http://k.youku.com/player/getFlvPath/sid/0516686760104124b95a8/st/mp4/fileid/03001101005A6209593E6045674085D28C58A4-A0E6-8F6E-335A-D38777E1EB7F?k=d512d877727cfd6a24134921&hd=0&myp=0&ts=1383&ctype=12&ev=1&token=0524&oip=2067890049&ep=cieVHE%2BFUMkG5SLfjD8bY37rcSYHXP4J9h%2BEgNJjALshOe69mTfUzp7FSP9GE%2F8ediIOFZ%2Fzo6Pi%0AYjEQYYFD3G4Q1ziuTPrj%2FfWS5dlQzJcHYWw3B7%2FQwlSeRjL1&ccode=050F&duration=1383&expire=18000&psid=d9e9d0ef51e81527cb25d722efb6e341&ups_client_netip=7b417f81&ups_ts=1516686760&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMzMzUwNTg4NA%3D%3D&vkey=A907a3d8eb1c556fe88d329befb68a096' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
+        default: 'http://k.youku.com/player/getFlvPath/sid/051669978909212914527/st/mp4/fileid/03000A0A025A6138DD77B93087F459E32183A1-BB1F-4A07-B8FA-AEA0F07D9D3B?k=929e48fc527734792620249f&hd=0&myp=0&ts=390&ctype=12&ev=1&token=0514&oip=2067890049&ep=cieVHE%2BEX8kI7CPWij8bbi3mcXUIXP4J9h%2BF8NITALkhOe6%2Bmjals5q3PPZBFvEeBCYDGZ7yqdHv%0AaTEVYYIxqB4Q2z%2BoPvqS9oaS5dwmtZB2Zh5Ce7nUxlSeRjH1&ccode=050F&duration=389&expire=18000&psid=362a5fc9dc8df218f1dbcb34fe8484cf&ups_client_netip=7b417f81&ups_ts=1516699789&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMzMTc0MDY0OA%3D%3D&vkey=A14597744e626a5c3f947ffc1a888d520' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
       },
       width: {
         type: Number,
@@ -114,7 +112,7 @@
       return {
         video: null,
         playOrPause: true,
-        fullScreen: 0,
+        fullscreen: 0,
         buffer: 0,
         current: 0,
         duration: 0,
@@ -126,7 +124,7 @@
         mouseMoving: false,
         timer: null,
         error: false,
-        canPlay: false
+        canplay: false
       }
     },
     computed: {
@@ -137,7 +135,7 @@
         return this.volume === 0 ? '取消静音' : '静音'
       },
       fullScreenTitle () {
-        return this.fullScreen ? '取消全屏' : '全屏'
+        return this.fullscreen ? '取消全屏' : '全屏'
       }
     },
     mounted () {
@@ -150,16 +148,13 @@
     methods: {
       fullscreenChange () {
         let fullscreenEle = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement
-        console.log(fullscreenEle)
-        this.fullScreen = fullscreenEle ? 1 : 0
+        this.fullscreen = fullscreenEle ? 1 : 0
         // 全屏或者取消全屏后为了保证控制条按钮的left值显示无误而需要重新获取进度条的宽度
         this.durationWidth = this.$refs.durationProgressBar.$el.getBoundingClientRect().width
       },
       bindFullscreenChange () {
-        console.log('beforeBind');
-        ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'msfullscreenchange'].forEach(f => {
+        ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(f => {
           document.addEventListener(f, this.fullscreenChange.bind(this))
-          console.log('afterBind')
         })
       },
       keydown (e) {
@@ -169,10 +164,10 @@
               e.keyCode = 0
             } catch (e) {}
             e.returnValue = false
-          } else {
+          } else { // firefox
             e.preventDefault()
           }
-          if (this.fullScreen) this.playToggle()
+          if (this.fullscreen) this.playToggle()
         }
       },
       throttle () {
@@ -188,8 +183,12 @@
         this.throttle()
       },
       playToggle () {
-        if (this.playOrPause) this.video.play()
-        else this.video.pause()
+        if (this.playOrPause) {
+          this.video.play()
+          this.canplay = true
+        } else {
+          this.video.pause()
+        }
         this.playOrPause = !this.playOrPause
       },
       volumeToggle () {
@@ -200,7 +199,7 @@
         : 0
       },
       fullScreenToggle () {
-        if (!this.fullScreen) {
+        if (!this.fullscreen) {
           try {
             ['requestFullscreen', 'mozRequestFullScreen', 'webkitRequestFullscreen', 'msRequestFullscreen'].forEach((v) => {
               if (v in this.$refs.player) {
@@ -209,7 +208,7 @@
               }
             })
           } catch (err) {
-            console.log(err)
+            // console.log(err)
           }
         } else {
           try {
@@ -220,7 +219,7 @@
               }
             })
           } catch (err) {
-            console.log(err)
+            // console.log(err)
           }
         }
       },
@@ -242,7 +241,7 @@
         this.duration = this.video.duration
       },
       onCanplay () {
-        this.canPlay = true
+        this.canplay = true
       },
       onTimeupdate () {
         this.current = this.video.currentTime
@@ -263,10 +262,10 @@
         this.error = true
       },
       onWaiting () {
-        this.canPlay = false
+        this.canplay = false
       },
       onSeeked () {
-        this.canPlay = true
+        this.canplay = true
       },
       dumpVolumeTrack (value) {
         this.volume = value

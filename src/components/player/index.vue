@@ -93,7 +93,7 @@
     props: {
       src: {
         type: String,
-        default: 'http://k.youku.com/player/getFlvPath/sid/051669978909212914527/st/mp4/fileid/03000A0A025A6138DD77B93087F459E32183A1-BB1F-4A07-B8FA-AEA0F07D9D3B?k=929e48fc527734792620249f&hd=0&myp=0&ts=390&ctype=12&ev=1&token=0514&oip=2067890049&ep=cieVHE%2BEX8kI7CPWij8bbi3mcXUIXP4J9h%2BF8NITALkhOe6%2Bmjals5q3PPZBFvEeBCYDGZ7yqdHv%0AaTEVYYIxqB4Q2z%2BoPvqS9oaS5dwmtZB2Zh5Ce7nUxlSeRjH1&ccode=050F&duration=389&expire=18000&psid=362a5fc9dc8df218f1dbcb34fe8484cf&ups_client_netip=7b417f81&ups_ts=1516699789&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzMzMTc0MDY0OA%3D%3D&vkey=A14597744e626a5c3f947ffc1a888d520' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
+        default: 'http://k.youku.com/player/getFlvPath/sid/0516754378147126f334e/st/mp4/fileid/03000A0E025A5BEBBDB5FD45365AD36FCCA0AE-622A-88B9-3F8A-83B2EB141FF4?k=fc313ef9ac2e995e262024eb&hd=0&myp=0&ts=392&ctype=12&ev=1&token=0539&oip=2067890049&ep=cieVHE6IUs0H7SLbjz8bYXrhd3NaXP4J9h%2BF8NIXALkhOe3N7Eyjs%2B%2B1OItGE%2Fofd1NyE%2B2H2KOW%0AajFhYfZBqxkQ10baMPrjiPiS5aVQtpJ1FBgyc7uhsFSeRjP4&ccode=050F&duration=392&expire=18000&psid=b320c413115b4c606347d46942ad8b03&ups_client_netip=7b417f81&ups_ts=1516754378&ups_userid=&utid=cFVLEqudDDsCAbfr%2FzZxh7Ge&vid=XMzM0NDUxNjQ4MA%3D%3D&vkey=A39ed8df8b2ad2f4e08675a1da8b3dabb' // http://jq22com.qiniudn.com/jq22-sp.mp4 http://10.10.0.88:8081/static/test.mp4 http://localhost:8080/static/demo.mp4
       },
       width: {
         type: Number,
@@ -101,7 +101,7 @@
       },
       height: {
         type: Number,
-        default: 500
+        default: 400
       }
     },
     components: {
@@ -170,17 +170,14 @@
           if (this.fullscreen) this.playToggle()
         }
       },
-      throttle () {
+      show () {
         let _this = this
+        this.mouseMoving = true
         clearTimeout(this.timer)
         this.timer = setTimeout(() => {
           _this.mouseMoving = false
           clearTimeout(_this.timer)
         }, 2000)
-      },
-      show () {
-        this.mouseMoving = true
-        this.throttle()
       },
       playToggle () {
         if (this.playOrPause) {

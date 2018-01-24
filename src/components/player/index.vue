@@ -1,7 +1,6 @@
 <template>
   <div id="video-player"
     :style="{'width': width + 'px', 'height': height + 'px'}"
-    :class="{'video-player-fullScreen': fullscreen}"
     @mousemove="show">
     <div class="player" ref="player">
       <video id="video"

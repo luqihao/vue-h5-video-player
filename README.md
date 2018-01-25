@@ -42,7 +42,7 @@ demo地址：https://luqihao.github.io/vue-h5-video-player/dist
 | Opera | √ |
 | safari | √ |
 
-**4. 图片展示
+**4. 图片展示**
 
 ![vv-player](https://luqihao.github.io/vue-h5-video-player/dist/demo.png)
 

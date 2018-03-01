@@ -19,6 +19,9 @@
         @seeked="onSeeked"
         @click="playToggle"
         ref="video">
+        <slot name="source">
+
+        </slot>
         您的浏览器版本过低，并不支持video标签，请升级！
       </video>
 
@@ -39,51 +42,54 @@
       </div>
 
       <div class="video-controls-wrapper" :class="{'hover': mouseMoving}">
-        <div class="btn hover" @click="playToggle" :title="playTitle">
-          <i :class="{'icon icon-play': playOrPause, 'icon icon-pause': !playOrPause}"></i>
-        </div>
+        <!-- <div class="btn hover vertical" @click="playToggle" :title="playTitle"> -->
+          <i class="btn hover vertical" @click="playToggle" :title="playTitle" :class="{'icon icon-play': playOrPause, 'icon icon-pause': !playOrPause}"></i>
+        <!-- </div> -->
 
         <div class="track-progress-bar-wrapper">
           <duration-progress-bar
-          :bufferScale="buffer / duration"
-          :durationScale="current / duration"
-          :durationLeft="5 / durationWidth"
-          :movingTime="movingTime | formateTime"
-          @getMovingTime="getMovingTime"
-          @dumpDurationTrack="dumpDurationTrack"
-          @cancelDragging="play"
-          @wheelDurationTrack="wheelDurationTrack"
-          ref="durationProgressBar"/>
+            :bufferScale="buffer / duration"
+            :durationScale="current / duration"
+            :durationLeft="5 / durationWidth"
+            :movingTime="movingTime | formateTime"
+            @getMovingTime="getMovingTime"
+            @dumpDurationTrack="dumpDurationTrack"
+            @cancelDragging="play"
+            @wheelDurationTrack="wheelDurationTrack"
+            ref="durationProgressBar"/>
         </div>
 
-        <div class="text text-s text-padding">
+        <div class="text text-s text-padding vertical">
           <b>{{current | formateTime}}</b>
           /
           <b>{{duration | formateTime}}</b>
         </div>
 
-
-        <div class="btn hover" @click="volumeToggle" :title="volumeTitle">
-          <i :class="{'icon icon-volume-medium': volume > 0.5 && volume <= 1, 'icon icon-volume-low': volume > 0 && volume <= 0.5,'icon icon-volume-mute': volume === 0}"></i>
-        </div>
+        <!-- <div class="btn hover vertical" @click="volumeToggle" :title="volumeTitle"> -->
+          <i class="btn hover vertical" @click="volumeToggle" :title="volumeTitle" :class="{'icon icon-volume-medium': volume > 0.5 && volume <= 1, 'icon icon-volume-low': volume > 0 && volume <= 0.5,'icon icon-volume-mute': volume === 0}"></i>
+        <!-- </div> -->
 
         <div class="volume-progress-bar-wrapper">
-          <volume-progress-bar :volume="volume" @dumpVolumeTrack="dumpVolumeTrack" @wheelVolumeTrack="wheelVolumeTrack"/>
+          <volume-progress-bar
+            :volume="volume"
+            @dumpVolumeTrack="dumpVolumeTrack"
+            @wheelVolumeTrack="wheelVolumeTrack"/>
         </div>
 
-        <div class="btn text text-s">
+        <div class="btn text text-s vertical">
           <b>{{volume | formateVolume}}</b>
         </div>
 
-        <div class="btn hover" @click="fullScreenToggle" :title="fullScreenTitle" ref="fullscreen">
-          <i :class="{'icon icon-fullscreen': !fullscreen, 'icon icon-notFullscreen': fullscreen}"></i>
-        </div>
+        <!-- <div class="btn hover vertical" @click="fullScreenToggle" :title="fullScreenTitle" ref="fullscreen"> -->
+          <i class="btn hover vertical" @click="fullScreenToggle" :title="fullScreenTitle" ref="fullscreen" :class="{'icon icon-fullscreen': !fullscreen, 'icon icon-notFullscreen': fullscreen}"></i>
+        <!-- </div> -->
       </div>
     </div>
   </div>
 </template>
 
 <script>
+  // import './reset.css'
   import './icon.css'
   import durationProgressBar from './durationProgressBar'
   import volumeProgressBar from './volumeProgressBar'
@@ -200,6 +206,7 @@
             ['requestFullscreen', 'mozRequestFullScreen', 'webkitRequestFullscreen', 'msRequestFullscreen'].forEach((v) => {
               if (v in this.$refs.player) {
                 this.$refs.player[v]()
+                // screen.orientation.lock('landscape-secondary')
                 throw v
               }
             })
@@ -408,21 +415,23 @@
         align-items: center;
         padding: 0 10px;
         width: 100%;
-        height: 50px;
+        height: 30px;
         background-color: rgba(0, 0, 0, .3);
         box-sizing: border-box;
         user-select: none;
-        opacity: 0;
+        opacity: 1;
         transition: opacity 1s;
         &:hover, &.hover {
           opacity: 1;
+        }
+        .vertical {
+          line-height: 30px;
         }
         .btn {
           width: 30px;
           height: 30px;
           text-align: center;
-          line-height: 30px;
-          font-size: 20px;
+          font-size: 18px;
           color: rgba(255, 255, 255, 1);
         }
         .hover:hover {
@@ -444,16 +453,14 @@
           }
         }
         .track-progress-bar-wrapper {
-          margin: 0 5px;
           flex: 1;
+          margin: 0 5px;
+          height: 30px;
         }
         .volume-progress-bar-wrapper {
           margin: 0 5px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
           width: 50px;
-          height: 50px;
+          height: 30px;
         }
       }
     }

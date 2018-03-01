@@ -1,7 +1,13 @@
 <template>
   <div id="app">
     <h1>vue-h5-video-player</h1>
-    <player/>
+    <player>
+      <div slot="source">
+        <source src="movie.mp4" type="video/mp4">
+        <source src="movie.ogg" type="video/ogg">
+        <source src="movie.webm" type="video/webm">
+      </div>
+    </player>
   </div>
 </template>
 
